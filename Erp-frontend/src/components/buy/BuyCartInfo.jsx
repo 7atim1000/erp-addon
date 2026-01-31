@@ -1,0 +1,278 @@
+import React, {useRef, useEffect} from 'react'
+import { MdDeleteForever } from 'react-icons/md';
+import { FaShoppingCart, FaTrashAlt } from 'react-icons/fa';
+import { BsFillCartCheckFill } from 'react-icons/bs';
+import { useSelector, useDispatch } from 'react-redux'
+import { removeItem } from '../../redux/slices/buySlice'
+
+const BuyCartInfo = () => {
+    // adding Item
+    const buyData = useSelector(state => state.buy);
+
+    const sortedBuyData = [...buyData].sort((a, b) => {
+        if (a.timestamp && b.timestamp) {
+            return new Date(b.timestamp) - new Date(a.timestamp);
+        }
+        return b.id - a.id;
+    });
+    
+    // Calculate total
+    const totalAmount = sortedBuyData.reduce((sum, item) => sum + (item.price || 0), 0);
+    const totalItems = sortedBuyData.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    
+    // scrollbar
+    const scrolLRef = useRef();
+    useEffect(() => {
+        if(scrolLRef.current) {
+            scrolLRef.current.scrollTo({
+                top: scrolLRef.current.scrollHeight,
+                behavior: 'smooth'
+            })
+        }
+    }, [buyData]);
+
+    // to remove item
+    const dispatch = useDispatch(); 
+    const handleRemove = (itemId) => {
+        dispatch(removeItem(itemId))
+    }
+
+    return (
+        <div className='bg-gradient-to-b from-white to-blue-50 rounded-xl shadow-lg border border-blue-100 p-4 h-full'>
+            {/* Header */}
+            <div className='flex items-center justify-between mb-6'>
+                <div className='flex items-center gap-3'>
+                    <div className='bg-gradient-to-r from-blue-500 to-blue-600 p-2.5 rounded-lg shadow-sm'>
+                        <FaShoppingCart className='text-white w-5 h-5' />
+                    </div>
+                    <div>
+                        <h2 className='text-lg font-bold text-gray-800'>Purchase Cart</h2>
+                        <p className='text-xs text-gray-500'>Items selected for purchase</p>
+                    </div>
+                </div>
+                
+                <div className='flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200'>
+                    <div className='w-2 h-2 bg-blue-500 rounded-full animate-pulse'></div>
+                    <span className='text-xs font-medium text-blue-700'>{sortedBuyData.length} items</span>
+                </div>
+            </div>
+
+            {/* Cart Items Container */}
+            <div className='mb-4'>
+                <div className='flex items-center justify-between mb-3 px-1'>
+                    <h3 className='text-sm font-semibold text-gray-700'>Items in Cart</h3>
+                    <div className='flex items-center gap-2'>
+                        <span className='text-xs text-gray-500'>{totalItems} units</span>
+                        <div className='w-1 h-1 bg-gray-300 rounded-full'></div>
+                        <span className='text-xs font-medium text-blue-600'>{sortedBuyData.length} products</span>
+                    </div>
+                </div>
+
+                <div 
+                    className='overflow-y-auto scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-blue-50 rounded-lg border border-blue-100 bg-white p-1'
+                    ref={scrolLRef}
+                    style={{ maxHeight: '400px' }}
+                >
+                    {sortedBuyData.length === 0 ? (
+                        <div className='flex flex-col items-center justify-center py-12 px-4 text-center'>
+                            <div className='mb-4 p-4 bg-blue-50 rounded-full'>
+                                <BsFillCartCheckFill className='w-8 h-8 text-blue-400' />
+                            </div>
+                            <h4 className='text-gray-700 font-medium mb-1'>Your cart is empty</h4>
+                            <p className='text-sm text-gray-500 max-w-xs'>Start adding items to your purchase cart to see them here</p>
+                        </div>
+                    ) : (
+                        <div className='space-y-2'>
+                            {sortedBuyData.map((item, index) => (
+                                <div 
+                                    key={`${item.id}-${index}`}
+                                    className='group bg-gradient-to-r from-white to-blue-50 hover:from-blue-50 hover:to-blue-100 rounded-lg border border-blue-100 p-3 transition-all duration-200 hover:shadow-sm hover:border-blue-200'
+                                >
+                                    <div className='flex items-start justify-between'>
+                                        <div className='flex-1 min-w-0'>
+                                            <div className='flex items-center gap-2 mb-1'>
+                                                <div className='w-2 h-2 bg-blue-400 rounded-full'></div>
+                                                <h4 className='text-sm font-semibold text-gray-800 truncate' title={item.name}>
+                                                    {item.name}
+                                                </h4>
+                                            </div>
+                                            
+                                            <div className='flex items-center justify-between'>
+                                                <div className='flex items-center gap-3'>
+                                                    <div className='text-xs text-gray-600 bg-blue-50 px-2 py-1 rounded'>
+                                                        <span className='font-medium text-blue-700'>{item.pricePerQuantity}</span>
+                                                        <span className='text-gray-400 mx-1'>×</span>
+                                                        <span className='font-medium text-blue-700'>{item.quantity}</span>
+                                                        <span className='text-gray-400 mx-1'>=</span>
+                                                    </div>
+                                                    <span className='text-xs text-gray-500'>{item.unit || 'unit'}</span>
+                                                </div>
+                                                
+                                                <div className='text-right'>
+                                                    <p className='text-sm font-bold text-blue-800'>
+                                                        {item.price.toFixed(2)} <span className='text-xs font-normal text-gray-500'>AED</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <button
+                                            onClick={() => handleRemove(item.id)}
+                                            className='ml-3 p-1.5 text-red-500 hover:text-white hover:bg-red-500 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100 cursor-pointer'
+                                            title="Remove item"
+                                        >
+                                            <FaTrashAlt className='w-4 h-4' />
+                                        </button>
+                                    </div>
+                                    
+                                    <div className='mt-2 pt-2 border-t border-blue-100 flex items-center justify-between'>
+                                        <button
+                                            onClick={() => handleRemove(item.id)}
+                                            className='flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 cursor-pointer transition duration-200 md:hidden'
+                                        >
+                                            <MdDeleteForever className='w-4 h-4' />
+                                            Remove
+                                        </button>
+                                        
+                                        <div className='text-xs text-gray-500'>
+                                            Unit price: <span className='font-medium text-blue-600'>{item.pricePerQuantity} AED</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Summary Section */}
+            {sortedBuyData.length > 0 && (
+                <div className='mt-6 pt-4 border-t border-blue-200'>
+                    <div className='grid grid-cols-2 gap-3 mb-3'>
+                        <div className='bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-3'>
+                            <p className='text-xs text-blue-700 mb-1'>Total Items</p>
+                            <p className='text-xl font-bold text-blue-900'>{totalItems}</p>
+                            <p className='text-xs text-blue-600'>units</p>
+                        </div>
+                        
+                        <div className='bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-lg p-3'>
+                            <p className='text-xs text-emerald-700 mb-1'>Total Amount</p>
+                            <p className='text-xl font-bold text-emerald-900'>{totalAmount.toFixed(2)}</p>
+                            <p className='text-xs text-emerald-600'> AED</p>
+                        </div>
+                    </div>
+                    
+                    <div className='flex items-center justify-between p-3 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg text-white'>
+                        <div className='flex items-center gap-2'>
+                            <BsFillCartCheckFill className='w-4 h-4' />
+                            <span className='text-sm font-medium'>Cart Total</span>
+                        </div>
+                        <div className='text-right'>
+                            <p className='text-lg font-bold'>{totalAmount.toFixed(2)} AED</p>
+                            <p className='text-xs text-blue-200'>{sortedBuyData.length} products</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Empty State Footer */}
+            {sortedBuyData.length === 0 && (
+                <div className='mt-6 pt-4 border-t border-blue-100 text-center'>
+                    <div className='inline-flex items-center gap-2 text-blue-600 bg-blue-50 px-4 py-2 rounded-full'>
+                        <div className='w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse'></div>
+                        <span className='text-sm'>Add items from the selection panel</span>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default BuyCartInfo;
+
+
+// import React, {useRef, useEffect} from 'react'
+// import { MdDeleteForever } from 'react-icons/md';
+// import { useSelector, useDispatch } from 'react-redux'
+// import { removeItem } from '../../redux/slices/buySlice'
+
+// const BuyCartInfo = () => {
+//     // adding Item
+//     const buyData = useSelector(state => state.buy);
+
+//     const sortedBuyData = [...buyData].sort((a, b) => {
+//         // Sort by timestamp if available, otherwise by ID or another unique identifier
+//         if (a.timestamp && b.timestamp) {
+//             return new Date(b.timestamp) - new Date(a.timestamp);
+//         }
+//         // Fallback: sort by ID in descending order
+//         return b.id - a.id;
+//     });
+    
+//     // scrollbar
+//     const scrolLRef = useRef();
+//         useEffect(() => {
+//             if(scrolLRef.current) {
+//                 scrolLRef.current.scrollTo({
+//                 top :scrolLRef.current.scrollHeight,
+//                 behavior :'smooth'
+//                 })
+//             }
+//         }, [buyData]);
+
+    
+//     // to remove item
+//     const dispatch = useDispatch(); 
+    
+//     const handleRemove = (itemId) => {
+//         dispatch(removeItem(itemId))
+//     }
+    
+    
+    
+
+//     return (
+//         <div className ='px-4 py-1 shadow-lg/30 bg-white'>
+//             <h1 className ='text-xs text-[#0ea5e9] font-semibold'>Purchase Details : </h1>
+                
+//                 <div className ='mt-1 overflow-y-scroll scrollbar-hidden h-[469px]' ref ={scrolLRef}>
+//                     {/* {buyData.length === 0  */}
+//                     {sortedBuyData.length === 0
+//                     ? (<p className ='text-xs text-[#be3e3f] flex justify-center'>Your cart is empty . Start adding items !</p>) 
+//                     : sortedBuyData.map((item) => {
+                                    
+//                         return (
+//                             <div className ='bg-[#f5f5f5] border-t border-white rounded-sm px-2 py-1 mb-1 
+//                             shadow-lg/30'>
+                                    
+//                                 <div className ='flex items-center justify-between'>
+//                                     <h1 className ='text-xs font-semibold text-[#1a1a1a]'>{item.name}</h1>
+//                                      <p >
+//                                     <span className ='text-xs font-semibold text-[#0ea5e9]'> {item.pricePerQuantity}</span>
+//                                     <span className ='text-xs'> x</span>
+//                                     <span className ='text-xs font-semibold text-[#0ea5e9]'> {item.quantity}</span>
+//                                     </p>
+//                                 </div>
+                                
+                              
+                                        
+//                                 <div className='flex items-center justify-between mt-1'>
+//                                     <MdDeleteForever onClick={() => handleRemove(item.id)}
+//                                         className='text-[#be3e3f] cursor-pointer border-b bordr-[#be3e3f] hover:bg-[#be3e3f]/30 rounded-sm' size={20} />
+
+//                                     <p className='text-[#1a1a1a]'><span className='text-xs'>AED </span>
+//                                         <span className='text-md text-yellow-700 font-semibold'>{item.price}</span>
+//                                     </p>
+//                                 </div>
+            
+//                             </div>
+                                        
+//                             )
+//                         })}
+             
+//                 </div>
+//         </div>
+      
+//     );
+// }
+// export default BuyCartInfo ;
