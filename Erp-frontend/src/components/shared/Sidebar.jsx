@@ -145,15 +145,15 @@ const Sidebar = () => {
               <div className="w-10 h-10 rounded-full bg-white/10 p-1 flex items-center justify-center border border-blue-500/30">
                 <img
                   src={hotel}
-                  alt="Enterprise RP"
+                  alt="POS Solution"
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
               
               {(!isCollapsed || isMobileMenuOpen) && (
                 <div className="flex flex-col">
-                  <span className="font-bold text-lg tracking-tight">Enterprise RP</span>
-                  <span className="text-xs text-blue-300">Hotel Management</span>
+                  <span className="font-bold text-lg tracking-tight">POS Solution</span>
+                  {/* <span className="text-xs text-blue-300">Hotel Management</span> */}
                 </div>
               )}
             </div>
@@ -326,7 +326,7 @@ const Sidebar = () => {
           {/* Version/Info */}
           {(!isCollapsed || isMobileMenuOpen) && (
             <div className="mt-4 text-center">
-              <p className="text-xs text-blue-300/70">v2.1.0 • ERP System</p>
+              <p className="text-xs text-blue-300/70">v2.1.0 • POS System</p>
             </div>
           )}
         </div>
