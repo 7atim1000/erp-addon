@@ -43,8 +43,7 @@ const Sidebar = () => {
     setActivePath(location.pathname);
   }, [location]);
 
-  ///////////////////////////Start Scroll bar////////////////////////////////////
-  
+  ////////////Scrollbar
   // 🔥 NEW: Auto-expand parent menu when a sub-item is active
   useEffect(() => {
     const currentPath = location.pathname;
@@ -82,11 +81,11 @@ const Sidebar = () => {
           behavior: 'smooth'
         });
       }
-    }, 100); // Small delay for DOM updates
+    }, 300); // ← You can change this from 100 to 300 or 500
   }, [location.pathname, expandedMenus, isCollapsed]);
 
-  
-  ///////////////////////////End Scrollbar///////////////////////////////////////
+  ////////////End Scrollbar
+
 
   // Logout mutation
   const logOutMutation = useMutation({
