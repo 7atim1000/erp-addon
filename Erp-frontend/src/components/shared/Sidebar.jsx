@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, NavLink, useNavigate } from 'react-router-dom';
 import { SidebarMenuLinks } from '../../assets/assets';
 import { FaChevronDown, FaChevronRight, FaBars, FaTimes } from "react-icons/fa";
