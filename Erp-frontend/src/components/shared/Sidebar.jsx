@@ -43,6 +43,51 @@ const Sidebar = () => {
     setActivePath(location.pathname);
   }, [location]);
 
+  ///////////////////////////Start Scroll bar////////////////////////////////////
+  
+  // 🔥 NEW: Auto-expand parent menu when a sub-item is active
+  useEffect(() => {
+    const currentPath = location.pathname;
+    
+    SidebarMenuLinks.forEach(link => {
+      if (link.subItems) {
+        const hasActiveSub = link.subItems.some(sub => currentPath === sub.path);
+        if (hasActiveSub) {
+          setExpandedMenus(prev => ({
+            ...prev,
+            [link.name]: true
+          }));
+        }
+      }
+    });
+  }, [location.pathname]);
+
+  // 🔥 NEW: Scroll to active menu item when component mounts or path changes
+  useEffect(() => {
+    // Give time for DOM to update
+    setTimeout(() => {
+      if (activeItemRef.current && sidebarRef.current) {
+        const sidebar = sidebarRef.current;
+        const activeItem = activeItemRef.current;
+        
+        // Calculate position to scroll to
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const activeRect = activeItem.getBoundingClientRect();
+        
+        // Scroll to make active item visible in the middle of the sidebar
+        const scrollOffset = activeRect.top - sidebarRect.top - sidebar.clientHeight / 2 + activeRect.height / 2;
+        
+        sidebar.scrollTo({
+          top: sidebar.scrollTop + scrollOffset,
+          behavior: 'smooth'
+        });
+      }
+    }, 100); // Small delay for DOM updates
+  }, [location.pathname, expandedMenus, isCollapsed]);
+
+  
+  ///////////////////////////End Scrollbar///////////////////////////////////////
+
   // Logout mutation
   const logOutMutation = useMutation({
     mutationFn: () => logout(),
